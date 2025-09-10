@@ -42,10 +42,25 @@ jobs:
           ARCH="$(uname -m)"
           tar -C target/release -czf "dist/shard-json-array-linux-${ARCH}.tar.gz" shard-json-array
 
+      - name: Determine tag
+        id: tag
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            TAG="${{ github.event.inputs.tag }}"
+            if [ -z "$TAG" ]; then
+              echo "::error::Missing required input 'tag' for workflow_dispatch"
+              exit 1
+            fi
+            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*
-          tag_name: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.tag }}
+          tag_name: ${{ steps.tag.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
