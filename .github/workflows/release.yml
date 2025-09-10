@@ -39,6 +39,8 @@ jobs:
         env:
           # Prefer vendored zstd and avoid dynamic system libzstd via pkg-config
           ZSTD_SYS_USE_PKG_CONFIG: "0"
+          LIBZSTD_NO_PKG_CONFIG: "1"
+          ZSTD_SYS_BUNDLED: "1"
           RUSTFLAGS: "-C target-feature=+crt-static"
         run: |
           cargo build --locked --release --target x86_64-unknown-linux-musl
